@@ -1,11 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import * as Location from 'expo-location'
+import {PermissionStatus} from 'expo-location'
+import {Button, Linking, StyleSheet, Text, View} from 'react-native';
+import useAsync from 'react-use/lib/useAsync'
+
 
 export default function App() {
+  const { value } = useAsync(async () => {
+    return Location.getForegroundPermissionsAsync()
+  }, [])
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
+      {value?.status === PermissionStatus.DENIED && value?.canAskAgain
+          ? <Button title={'Grant Permission'} onPress={Linking.openSettings} />
+          : <Text>{value?.status}</Text>}
     </View>
   );
 }
@@ -13,7 +21,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
